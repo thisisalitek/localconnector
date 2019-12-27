@@ -1,8 +1,11 @@
 # Logs
 logs
 *.log
+*.zip
+
 src/node_modules/
 src/*.sql
 src/run_local.bat
 src/test.js
 installer/dist/node_modules/
+
