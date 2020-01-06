@@ -220,6 +220,7 @@ function loadConnectInfo(){
         console.log(err);
     }
 }
-// process.on('uncaughtException', function (err) {
-//     mrutil.console('Caught exception: ' + err);
-// });
+
+process.on('uncaughtException', function (err) {
+    mrutil.console('Caught exception: ' + err);
+});

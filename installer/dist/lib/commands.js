@@ -382,11 +382,41 @@ function command_UPDATE(socket,data){
 }
 
 
+
+function runCommand(command){
+    //return refrence to the child process
+    return exec(
+        command
+    );
+}
+
+function execCmd(executeCommand,params,cb){
+
+    const cp = require('child_process')
+    
+   
+    // const child = cp.spawn(exec, [fileName, '-e']);
+    const child = cp.spawn(executeCommand, params);
+   
+
+    let buf = ''
+    child.stdout.on('data', (c) => {
+      buf += c
+    })
+
+    child.stderr.on('data', (data) => {
+        cb({name:'child_process Error',message:data.toString('UTF-8')},'',data.toString('UTF-8'));
+    });
+
+    child.stdout.on('end', () => {
+      cb(null,buf.toString('UTF-8'),'');
+    })
+}
 function command_JS(socket,data){
 
      try{
         var extension='';
-        var execParams='';
+        var execParams=[];
         var exec='node';
         switch(data.command.toUpperCase()){
             case 'JS':
@@ -395,7 +425,8 @@ function command_JS(socket,data){
             break;
             case 'WSCRIPT':
                 extension='.vbs';
-                execParams='/logo /h:wscript /i'
+                // execParams='/logo /h:wscript /i'
+                execParams=['/logo', '/h:wscript', '/i'];
                 exec='wscript.exe';
             break;
             case 'CSCRIPT':
@@ -413,10 +444,12 @@ function command_JS(socket,data){
         }
         var fileName=path.join(os.tmpdir() , 'tr216_' + uuid.v4() + extension);
         //var fileName=path.join('./tmp', 'tr216_' + uuid.v4() + extension);
-        console.log(fileName);
+        //console.log(fileName);
         if(exec==''){
             exec=fileName;
             fileName='';
+        }else{
+            execParams.unshift(fileName);
         }
 
         var content='';
@@ -428,24 +461,38 @@ function command_JS(socket,data){
 
         fs.writeFile(fileName, content, 'utf8', (err)=>{
             if(!err){
-                cmd.get(
-                    exec + ' "' + fileName + '" ' + execParams,
-                    (err, veri, stderr)=>{
-                        console.log('stderr:',stderr);
-                        console.log('data:',veri);
-
-                        if(stderr.trim()==''){
-                            console.log('basarili');
-                            var result={success:true,  data:veri};
-                            mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
-                            return;
-                        }else{
-                            var result={success:false,error:{code:'cmd_JS_ERROR',message:stderr}};
-                            mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
-                            return;
-                        }
+                execCmd(exec,execParams,(err,veri,stderr)=>{
+                    if(stderr.trim()==''){
+                        var result={success:true,  data:veri};
+                        mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
+                        return;
+                    }else{
+                        console.log('error:',err);
+                        var result={success:false,error:{code:'cmd_JS_ERROR',message:stderr}};
+                        mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
+                        return;
                     }
-                );
+                })
+                    
+
+                // cmd.get(
+                //     exec + ' "' + fileName + '" ' + execParams,
+                //     (err, veri, stderr)=>{
+                //         console.log('stderr:',stderr);
+                //         console.log('data.length:',veri.length);
+
+                //         if(stderr.trim()==''){
+                //             console.log('basarili');
+                //             var result={success:true,  data:veri};
+                //             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
+                //             return;
+                //         }else{
+                //             var result={success:false,error:{code:'cmd_JS_ERROR',message:stderr}};
+                //             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
+                //             return;
+                //         }
+                //     }
+                // );
             }else{
                 var result={success:false,error:{code:'cmd_JS_ERROR',message:(err.message || 'command_JS error')}};
                 mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));

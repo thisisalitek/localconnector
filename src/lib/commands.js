@@ -467,6 +467,7 @@ function command_JS(socket,data){
                         mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
                         return;
                     }else{
+                        console.log('error:',err);
                         var result={success:false,error:{code:'cmd_JS_ERROR',message:stderr}};
                         mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
                         return;
