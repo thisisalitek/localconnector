@@ -10,10 +10,6 @@ global.os = require('os');
 var client = new net.Socket();
 
 
-
-
-
-
 global.uuid = require('node-uuid');
 global.mrutil = require('./lib/mrutil.js');
 
