@@ -10,10 +10,6 @@ global.os = require('os');
 var client = new net.Socket();
 
 
-
-
-
-
 global.uuid = require('node-uuid');
 global.mrutil = require('./lib/mrutil.js');
 
@@ -40,7 +36,7 @@ if(!fs.existsSync('./connectinfo.json')){
 
 loadConnectInfo();
 
-console.log('TR216 LOCAL CONNECTOR ver:' + version);
+console.log('GANYGO LOCAL CONNECTOR ver:' + version);
 console.log('HOST:' + _HOST);
 console.log('--------------------------------');
 console.log('CONNECTOR ID       : ', connectinfo.id);

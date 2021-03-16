@@ -18,7 +18,6 @@ exports.commandProcessor=function (socket,data){
                 var result={success:true, data:connectinfo};
                 mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
             }
-            
         break;
         
         case 'UPDATE':
@@ -61,11 +60,8 @@ exports.commandProcessor=function (socket,data){
             var result={success:false,error:{code:'UNKNOWN_COMMAND',message:'Unknown command.'}};
             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command,result,data.requestid));
         break;
-
     }
-
 }
-
 
 var mssql = require('mssql');
 
@@ -82,7 +78,7 @@ function command_MSSQL_CONNECTION_TEST(socket,data){
         }
     }
     
-
+   
     mssql.connect(config).then(function() {
         
         var request = new mssql.Request();
@@ -95,13 +91,14 @@ function command_MSSQL_CONNECTION_TEST(socket,data){
             
         }).catch(function(err) {
             mssql.close();
-            var result={success:false, error:{code:err.code,message:'SQL_ERROR : ' + err.message}};
+            var result={success:false, error:{code:err.code || err.name || 'SQLERROR',message:err.name || err.message || 'Sql error'}};
             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
         });
 
     }).catch(function(err) {
+    		
         mssql.close();
-        var result={success:false, error:{code: 'SQLSERVER_CONNECTION_ERROR',message:'SqlServer connection error'}};
+        var result={success:false, error:{code: err.name || 'SQLSERVER_CONNECTION_ERROR',message: err.message || 'SqlServer connection error'}};
         mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
     });
     
@@ -121,7 +118,6 @@ function command_MSSQL_QUERY(socket,data){
             encrypt: false // Use this if you're on Windows Azure 
         }
     }
-
     mssql.close();
             
 
@@ -391,13 +387,9 @@ function runCommand(command){
 }
 
 function execCmd(executeCommand,params,cb){
-
     const cp = require('child_process')
-    
-   
     // const child = cp.spawn(exec, [fileName, '-e']);
     const child = cp.spawn(executeCommand, params);
-   
 
     let buf = ''
     child.stdout.on('data', (c) => {
@@ -405,13 +397,14 @@ function execCmd(executeCommand,params,cb){
     })
 
     child.stderr.on('data', (data) => {
-        cb({name:'child_process Error',message:data.toString('UTF-8')},'',data.toString('UTF-8'));
+        cb({name:'child_process Error', message:data.toString('UTF-8')},'',data.toString('UTF-8'));
     });
 
     child.stdout.on('end', () => {
       cb(null,buf.toString('UTF-8'),'');
     })
 }
+
 function command_JS(socket,data){
 
      try{
@@ -443,8 +436,7 @@ function command_JS(socket,data){
             break;
         }
         var fileName=path.join(os.tmpdir() , 'tr216_' + uuid.v4() + extension);
-        //var fileName=path.join('./tmp', 'tr216_' + uuid.v4() + extension);
-        //console.log(fileName);
+
         if(exec==''){
             exec=fileName;
             fileName='';
@@ -473,35 +465,12 @@ function command_JS(socket,data){
                         return;
                     }
                 })
-                    
-
-                // cmd.get(
-                //     exec + ' "' + fileName + '" ' + execParams,
-                //     (err, veri, stderr)=>{
-                //         console.log('stderr:',stderr);
-                //         console.log('data.length:',veri.length);
-
-                //         if(stderr.trim()==''){
-                //             console.log('basarili');
-                //             var result={success:true,  data:veri};
-                //             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo,data.command, result ,data.requestid));
-                //             return;
-                //         }else{
-                //             var result={success:false,error:{code:'cmd_JS_ERROR',message:stderr}};
-                //             mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
-                //             return;
-                //         }
-                //     }
-                // );
+                
             }else{
                 var result={success:false,error:{code:'cmd_JS_ERROR',message:(err.message || 'command_JS error')}};
                 mrutil.socketwrite(socket,mrutil.resPackage(connectinfo, data.command,result ,data.requestid));
             }
-          
         });
-
-
-        
 
     }catch(err){
         console.log('hata:',err);

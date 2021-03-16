@@ -10,7 +10,7 @@ for(var i=0;i<id.length;i++){
 }
 idstr = idstr.trim();
 
-console.log('TR216 LOCAL CONNECTOR Ver1');
+console.log('GANYGO LOCAL CONNECTOR Ver1');
 console.log('--------------------------------');
 console.log('CONNECTOR ID       : ', idstr);
 console.log('CONNECTOR PASSWORD : ', connectinfo.password);

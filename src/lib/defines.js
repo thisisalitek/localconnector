@@ -1,5 +1,5 @@
 global.version='01.00.0002';
-global._HOST ='connector.tr216.com';
+global._HOST ='connector.ganygo.com';
 
 
 global._PORT = 33216;
