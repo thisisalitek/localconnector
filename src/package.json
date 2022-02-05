@@ -8,10 +8,11 @@
     "email": "contact@etulia.com"
   },
   "dependencies": {
-    "mssql": "^4.2.1",
-    "mysql": "^2.16.0",
+    "colors": "^1.4.0",
+    "mssql": "^7.2.1",
+    "mysql": "^2.18.1",
     "net": "^1.0.2",
-    "node-cmd": "^3.0.0",
-    "node-uuid": "^1.4.8"
+    "node-cmd": "^5.0.0",
+    "uuid": "^8.3.2"
   }
 }
